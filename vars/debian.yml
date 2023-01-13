@@ -1,4 +1,8 @@
 ---
+grafana_apt_key_url: https://apt.grafana.com/gpg.key
+grafana_apt_key_path: /usr/share/keyrings/grafana.key
+grafana_apt_repos_url: https://packages.grafana.com/oss/deb
+
 grafana_package: "grafana{% if ansible_architecture == 'armv6l' %}-rpi{% endif %}{{ (grafana_version != 'latest') | ternary('=' ~ grafana_version, '') }}"
 grafana_dependencies:
   - apt-transport-https
