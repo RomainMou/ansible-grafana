@@ -1,14 +1,6 @@
 ---
 
 - block:
-    - name: Update apt cache
-      apt:
-        update_cache: true
-      register: _pre_update_apt_cache
-      until: _pre_update_apt_cache is succeeded
-      when:
-        - ansible_pkg_mgr == "apt"
-
     - name: Install dependencies
       package:
         name: "{{ grafana_dependencies }}"
@@ -42,10 +34,10 @@
 
 - block:
     - name: Import Grafana GPG signing key [Debian/Ubuntu]
-      apt_key:
-        url: "https://packages.grafana.com/gpg.key"
-        state: present
-        validate_certs: false
+      get_url:
+        url: "{{ grafana_apt_key_url }}"
+        dest: "{{ grafana_apt_key_path }}"
+        mode: 0644
       register: _add_apt_key
       until: _add_apt_key is succeeded
       retries: 5
@@ -53,7 +45,7 @@
 
     - name: Add Grafana repository [Debian/Ubuntu]
       apt_repository:
-        repo: deb https://packages.grafana.com/oss/deb stable main
+        repo: "deb [signed-by={{ grafana_apt_key_path }}] {{ grafana_apt_repos_url }} stable main"
         state: present
         update_cache: true
       register: _update_apt_cache
